@@ -1,0 +1,193 @@
+\documentclass[12pt]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{array}     
+\usepackage{xcolor}    
+\usepackage{hyperref}
+
+
+
+\geometry{a4paper, margin=2.5cm}
+\onehalfspacing
+
+\title{Pronóstico de Variables Deportivas Utilizando Modelos Supervisados}
+\author{Sergio Cortés Cepeda\\matricula:1731225\\
+Universidad Autónoma de Nuevo León, Facultad de Ciencias Físico Matemáticas}
+\date{Noviembre 2025}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Este estudio aplica algoritmos supervisados para predecir dos variables deportivas obtenidas desde datos reales del reloj Garmin: las calorías quemadas y el ritmo promedio de carrera. Se emplearon tres modelos de regresión \textbf{—Regresión Lineal, Random Forest y KNN—} evaluados mediante métricas estándar como \textbf{MAE, MSE y RMSE}. Los resultados muestran que la \textbf{Regresión Lineal} es superior para pronosticar calorías, mientras que \textbf{ Random Forest} obtiene el mejor desempeño al predecir el ritmo promedio.
+\end{abstract}
+
+\section{Introducción}
+
+Los modelos supervisados permiten estimar una variable objetivo a partir de un conjunto de predictores.Estos algoritmos pueden utilizarse para estimar rendimiento, esfuerzo y gasto energético. El propósito de esta tarea es construir modelos capaces de predecir:
+
+\begin{itemize}
+    \item Calorías quemadas por sesión.
+    \item Ritmo promedio (segundos por kilómetro).
+\end{itemize}
+
+Para ello se analizaron los datos reales provenientes del reloj Garmin, que describen múltiples sesiones de mis  entrenamientos, incluyendo métricas fisiológicas y de desempeño.
+
+\clearpage
+\section{Metodología}
+
+\subsection{Descripción del conjunto de datos}
+
+El conjunto de datos contiene información de cada entrenamiento:
+
+\begin{itemize}
+    \item Distancia recorrida (\texttt{distancia\_km})
+    \item Tiempo total en segundos (\texttt{Tiempo\_Total})
+    \item Calorías (\texttt{calorias})
+    \item Frecuencia cardiaca media y máxima (\texttt{fc\_media}, \texttt{fc\_max})
+    \item Cadencia media (\texttt{cadencia\_media})
+    \item Zancada promedio (\texttt{zancada\_m})
+    \item Ritmo promedio (\texttt{ritmo\_medio})
+\end{itemize}
+
+\subsection{Variables utilizadas}
+
+Variables predictoras (\textbf{X}):
+
+\begin{itemize}
+    \item Distancia
+    \item Tiempo total
+    \item Frecuencia cardiaca media
+    \item Frecuencia cardiaca máxima
+    \item Cadencia
+    \item Zancada
+\end{itemize}
+
+Variables objetivo (\textbf{y}):
+
+\begin{itemize}
+    \item Calorías
+    \item Ritmo promedio
+\end{itemize}
+
+\clearpage
+\section{Modelos Supervisados}
+
+Se emplearon tres algoritmos:
+
+\subsection{Regresión Lineal}
+Modelo paramétrico basado en combinación lineal de predictores. Es interpretable y funciona bien cuando la relación aproximada es lineal.
+
+\subsection{Random Forest Regressor}
+Modelo de ensamble basado en múltiples árboles. Captura relaciones no lineales y es robusto a valores atípicos.
+
+\subsection{KNN Regressor}
+Predice valores en función de los \emph{k} vecinos más cercanos. Es sensible al escalado y puede fallar si los datos tienen alta varianza.
+
+\section{Métricas Utilizadas}
+
+\subsection{MAE}
+\[
+MAE = \frac{1}{n} \sum |y_i - \hat{y}_i|
+\]
+
+\subsection{MSE}
+\[
+MSE = \frac{1}{n} \sum (y_i - \hat{y}_i)^2
+\]
+
+\subsection{RMSE}
+\[
+RMSE = \sqrt{MSE}
+\]
+
+Estas métricas se seleccionaron por ser las más comunes en regresión y por permitir evaluar precisión (MAE), penalización de errores grandes (MSE) y magnitud global del error (RMSE).
+
+\section{Resultados}
+
+\subsection{Predicción de Calorías}
+
+\begin{table}[H]
+\centering
+\caption{Resultados para la predicción de calorías.}
+\begin{tabular}{lccc}
+\hline
+\textbf{Modelo} & \textbf{MAE} & \textbf{MSE} & \textbf{RMSE} \\
+\hline
+Regresión Lineal & 17.16 & 519.70 & 22.80 \\
+Random Forest    & 25.74 & 1062.52 & 32.60 \\
+KNN              & 36.88 & 1888.47 & 43.46 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{HistModeloCalorias.png}
+\caption{{Histograma de errores absolutos — Calorías (Regresión Lineal).}}
+\end{figure}
+
+\clearpage
+\subsection{Predicción de Ritmo Promedio}
+
+\begin{table}[H]
+\centering
+\caption{Resultados para la predicción de ritmo promedio.}
+\begin{tabular}{lccc}
+\hline
+\textbf{Modelo} & \textbf{MAE} & \textbf{MSE} & \textbf{RMSE} \\
+\hline
+Regresión Lineal & 38.09 & 2174.02 & 46.62 \\
+Random Forest    & 30.80 & 1543.58 & 39.29 \\
+KNN              & 80.52 & 20042.28 & 141.57 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{HistModeloRitmoPromedio.png}
+\caption{Histograma de errores absolutos — Ritmo Promedio (Random Forest).}
+\end{figure}
+
+\section{Discusión}
+
+Los resultados muestran que:
+
+\begin{itemize}
+    \item La \textbf{Regresión Lineal} funciona mejor para predecir calorías debido a su relación lineal con distancia, tiempo y frecuencia cardiaca.
+    \item El \textbf{Random Forest} es superior prediciendo ritmo promedio, lo cual indica relaciones no lineales entre cadencia, FC y zancada.
+    \item \textbf{KNN} obtuvo el peor desempeño en ambas tareas, probablemente por su sensibilidad al ruido y al tamaño reducido del dataset.
+\end{itemize}
+
+Los histogramas muestran que existen valores atípicos que afectan el MSE y RMSE, especialmente en el ritmo promedio.
+
+\section{Conclusiones}
+
+\begin{itemize}
+    \item Los modelos supervisados permiten realizar pronósticos útiles sobre rendimiento usando datos reales del garmin.
+    \item La Regresión Lineal es la mejor opción para estimar calorías quemadas.
+    \item Random Forest ofrece la predicción más precisa para el ritmo promedio.
+    \item Para mejorar resultados futuros, sería útil incorporar variables externas como temperatura, tipo de superficie o fatiga acumulada.
+\end{itemize}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{gfg-linear-regression}
+GeeksforGeeks. (2024). \textit{ML | Linear Regression}. Recuperado de https://www.geeksforgeeks.org/machine-learning/ml-linear-regression/
+
+\bibitem{datacamp-rf}
+DataCamp. (2023). \textit{Random Forests in Python}. Recuperado de https://www.datacamp.com/tutorial/random-forests-classifier-python
+
+\bibitem{proclus-metrics}
+Proclus Academy. (2023). \textit{Regression Metrics You Must Know}. Recuperado de https://proclusacademy.com/blog/explainer/regression-metrics-you-must-know/
+
+\end{thebibliography}
+
+
+\end{document}
