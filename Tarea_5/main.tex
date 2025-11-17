@@ -1,0 +1,153 @@
+\documentclass[12pt]{article}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{colortbl}
+\onehalfspacing
+
+\title{Agrupamiento de Sesiones de Entrenamiento Deportivo\\
+Utilizando Mean Shift y Datos Garmin}
+
+\author{Sergio Cortés Cepeda\\matricula:1731225\\
+Universidad Autónoma de Nuevo León, Facultad de Ciencias Físico Matemáticas}
+
+\date{Noviembre 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+El presente artículo analiza datos reales provenientes de entrenamientos de carrera registrados con un dispositivo Garmin. Se aplica el algoritmo de aprendizaje no supervisado Mean Shift con el objetivo de identificar estructuras subyacentes sin requerir la especificación del número de clusters.
+\end{abstract}
+
+\section{Introducción}
+El análisis de datos deportivos se ha fortalecido en los últimos años gracias al uso de dispositivos inteligentes que registran información durante las sesiones de entrenamiento. En este contexto, los algoritmos de aprendizaje no supervisado permiten identificar patrones relevantes sin necesidad de etiquetas previas, facilitando la comprensión del comportamiento a largo plazo.
+
+Entre las técnicas más utilizadas se encuentran DBSCAN y Mean Shift. Mientras DBSCAN detecta densidades de puntos, Mean Shift utiliza estimación de densidad por ventanas para identificar concentraciones naturales en los datos. El propósito de este articulo es aplicar dichos métodos a un conjunto de sesiones de carrera obtenidas con un reloj Garmin, para identificar grupos representativos del comportamiento de entrenamiento.
+
+\clearpage
+\section{Metodología}
+
+\subsection{Datos}
+
+El conjunto de datos incluye variables representativas del rendimiento, tales como:
+
+\begin{itemize}
+    \item Distancia recorrida (km)
+    \item Tiempo total (segundos)
+    \item Ritmo medio (seg/km)
+    \item Frecuencia cardiaca media (lpm)
+    \item Cadencia promedio (pasos/min)
+    \item Longitud de zancada (m)
+    \item Desnivel (ascenso/descenso)
+    \item Pasos totales
+\end{itemize}
+Inicialmente se evaluó DBSCAN como técnica de densidad.  
+Sin embargo, la dispersión elevada y la heterogeneidad del dataset provocaron que la mayor parte de los puntos fueran clasificados como ruido (\texttt{-1}).  
+
+DBSCAN no logró dividir los datos en clusters significativos, por lo que se optó por utilizar otro enfoque.
+
+\subsection{Algoritmo Mean Shift}
+
+Mean Shift estima automáticamente el \textit{bandwidth}, correspondiente al radio de influencia del kernel.  
+Se empleó el método \texttt{estimate\_bandwidth}
+
+
+El algoritmo devolvió \textbf{cuatro clusters principales}.  
+Este método resultó más adecuado para datos continuos con relaciones no lineales y distribuciones complejas, como los presentes en este caso.
+
+\clearpage
+\subsection{Validación con métricas internas}
+
+Se utilizaron tres métricas estándar:
+
+\begin{itemize}
+    \item \textbf{Silhouette}: 0.297
+    \item \textbf{Calinski-Harabasz}: 6.06
+    \item \textbf{Davies-Bouldin}: 0.94
+\end{itemize}
+
+Calinski-Harabasz fue seleccionada como métrica principal debido a su robustez para medir separación y compacidad de clusters.
+
+
+\section{Resultados}
+El algoritmo Mean Shift identificó cuatro grupos:
+
+\begin{itemize}
+    \item \textbf{Cluster 0 (Volumen alto):} distancia elevada, cadencia moderada, ritmo estable.
+    \item \textbf{Cluster 1 (Alta intensidad):} ritmos muy rápidos, alta FC, sesiones cortas pero exigentes.
+    \item \textbf{Cluster 2 (Rodaje suave):} sesiones largas a baja intensidad; FC y ritmo bajos.
+    \item \textbf{Cluster 3 (Zancada amplia / técnica trabajada):} mayor longitud de zancada, cadencia media y FC moderada.
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{crrrrrrrrr}
+\rowcolor[HTML]{EAEAEA}
+\textbf{Cluster} & \textbf{Distancia (km)} & \textbf{Tiempo (s)} & \textbf{Ritmo (s/km)} & \textbf{Calorías} & \textbf{FC media} & \textbf{FC máx} & \textbf{Cadencia} & \textbf{Zancada (m)} & \textbf{Pasos} \\ 
+\hline
+\rowcolor[HTML]{F7F7F7}
+0 & 4.90 & 1860.2 & 393.8 & 404.2 & 162.4 & 181.6 & 163.2 & 0.94 & 5154.8 \\
+1 & 5.26 & 2535.5 & 487.5 & 452.0 & 146.5 & 185.5 & 113.5 & 1.06 & 5220.0 \\
+\rowcolor[HTML]{F7F7F7}
+2 & 22.58 & 8565.5 & 378.5 & 1835.0 & 174.5 & 190.5 & 171.0 & 0.92 & 24545.0 \\
+3 & 8.97 & 3185.5 & 349.0 & 697.0 & 167.5 & 187.0 & 150.0 & 1.16 & 8607.0 \\
+\hline
+\end{tabular}
+} % <- cierre de resizebox
+\caption{Promedios de variables por cluster utilizando Mean Shift.}
+\label{tabla:cluster_ms}
+\end{table}
+
+
+
+Estos clusters fueron interpretados en función de tres dimensiones:
+
+\begin{enumerate}
+    \item \textbf{Volumen:} distancia y tiempo total.
+    \item \textbf{Intensidad:} ritmo medio y frecuencia cardiaca.
+    \item \textbf{Técnica:} cadencia y zancada.
+    \end{enumerate}
+
+\clearpage
+\section{Discusión}
+
+Los resultados muestran que Mean Shift permite capturar patrones de entrenamiento que no pueden apreciarse a simple vista.  
+Cada cluster corresponde a un estilo de sesión distinto, lo que permite caracterizar con mayor detalle de mi comportamiento.
+
+La agrupación puede utilizarse para:
+
+\begin{itemize}
+    \item Planear cargas de entrenamiento,
+    \item Identificar tendencias de fatiga,
+    \item Evaluar la técnica de carrera,
+    \item Monitorear progresión fisiológica.
+\end{itemize}
+
+Asimismo, la identificación de cuatro grupos se alinea con las zonas comunes de entrenamiento en corredores recreativos e intermedios, lo cual refuerza la validez del método aplicado.
+
+\section{Conclusión}
+El análisis realizado demuestra que Mean Shift es un algoritmo adecuado para identificar estructuras subyacentes en datos deportivos continuos y heterogéneos.  
+El modelo logró agrupar las sesiones en cuatro clusters coherentes con diferentes patrones de volumen, intensidad y técnica.
+
+El uso de métricas internas permitió validar la calidad del agrupamiento, destacando el índice de Calinski-Harabasz como estrategia más estable para este tipo de datos.  
+Los resultados obtenidos pueden servir como base para futuras aplicaciones orientadas al análisis de rendimiento, prevención de lesiones y optimización del entrenamiento.
+
+\begin{thebibliography}{9}
+
+\bibitem{datacamp2023}
+DataCamp. (2023). \textit{Mean Shift clustering: A complete guide}. 
+Recuperado de \url{https://www.datacamp.com/tutorial/mean-shift-clustering}
+\bibitem{geeks2023}
+GeeksforGeeks. (2023). \textit{DBSCAN Clustering in ML: Density-Based Clustering}. 
+Recuperado de \url{https://www.geeksforgeeks.org/machine-learning/dbscan-clustering-in-ml-density-based-clustering/}
+\end{thebibliography}
+
+
+\end{document}
